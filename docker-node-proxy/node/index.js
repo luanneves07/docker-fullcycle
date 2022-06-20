@@ -6,18 +6,20 @@ const config = {
     host: 'db',
     user: 'root',
     password: 'root',
-    database:'nodedb'
+    database: 'nodedb'
 };
 const mysql = require('mysql');
 const connection = mysql.createConnection(config);
 
+createTableIfNotExists();
+
 const sql = `INSERT INTO people(name) values('Luan')`;
 connection.query(sql);
 
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
     let html = '<h1>Full Cycle</h1>';
     connection.query(`SELECT name FROM people`, (error, result) => {
-        if(error) {
+        if (error) {
             connection.end();
             throw error;
         }
@@ -30,13 +32,18 @@ app.get('/', (req,res) => {
     });
 });
 
-app.post('/:name', (req,res) => {
+app.post('/:name', (req, res) => {
     const { name } = req.params;
     const sql = `INSERT INTO people(name) values('${name}')`;
     connection.query(sql);
     res.send('<h1>Full Cycle</h1>');
 });
 
-app.listen(port, ()=> {
+app.listen(port, () => {
     console.log(`Server started. Port::${port}`);
 })
+
+function createTableIfNotExists() {
+    const table = `CREATE TABLE IF NOT EXISTS people ( id int not null auto_increment, name varchar(255), primary key (id) );`;
+    connection.query(table);
+}

@@ -8,41 +8,43 @@ services:
     container_name: db
     restart: always
     tty: true
-    user: mysql
-    volumes: 
+    # If on MACOS with M1 chip, you need to change the user just to prevent ID conflicts
+    # user: mysql
+    volumes:
       - ./mysql:/var/lib/mysql
-    environment: 
+    environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
-    networks: 
+    networks:
       - node-net
 
   nginx:
-    build: 
+    build:
       context: ./nginx
       dockerfile: Dockerfile.prod
     image: lneves07/nginx:prod
     container_name: nginx
-    networks: 
+    networks:
       - node-net
-    ports: 
+    ports:
       - "8080:80"
-    depends_on: 
-        - app
+    depends_on:
+      - app
 
   app:
-      build: 
-        context: ./node
-      image: lneves07/node
-      container_name: app
-      entrypoint: dockerize -wait tcp://db:3306 -timeout 20s node index.js
-      networks: 
-        - node-net
-      volumes: 
-        - ./node:/usr/src/app
-      tty: true
-      depends_on: 
-        - db
+    build:
+      context: ./node
+    image: lneves07/node
+    container_name: app
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s node index.js
+    networks:
+      - node-net
+    volumes:
+      - ./node:/usr/src/app
+      - /usr/src/app/node_modules
+    tty: true
+    depends_on:
+      - db
 
 networks:
   node-net:

@@ -9,7 +9,7 @@ services:
     restart: always
     tty: true
     # If on MACOS with M1 chip, you need to change the user just to prevent ID conflicts
-    # user: mysql
+    user: mysql
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
